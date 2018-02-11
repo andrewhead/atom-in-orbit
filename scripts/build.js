@@ -46,6 +46,7 @@ const {execFileSync, spawnSync} = require('child_process');
 // really need to do better than this. The real solution is to upstream the appropriate fixes such
 // that these patches are unnecessary.
 
+/*
 // This is fixed in Atom master as of 089fa92117f5d0ead54b56ee208a2baa24d9c4e2.
 execFileSync('patch', [
   path.join(ATOM_SRC, 'src/atom-environment.coffee'),
@@ -57,6 +58,7 @@ execFileSync('patch', [
   path.join(ATOM_SRC, 'src/compile-cache.js'),
   path.join(root, 'scripts/patches/src/compile-cache.js.patch'),
 ]);
+*/
 const {COMPILERS, compileFileAtPath, setAtomHomeDirectory} = require(
   path.join(ATOM_SRC, 'src/compile-cache'));
 
@@ -107,14 +109,15 @@ function build() {
     // code must exist under node_modules. Even though these are Atom packages,
     // installing them under node_modules helps ensure their dependencies get
     // deduped properly by npm.
+    'one-light-ui',
+    'atom-material-syntax-light',
     'command-palette',
-    'find-and-replace',
-    'go-to-line',
-    'markdown-preview',
     'notifications',
     'status-bar',
-    'tabs',
     'tree-view',
+    'codescoop',
+    // 'script',
+    'language-java',
   ];
   const filesTypesToCopyFromPackage = new Set(['.cson', '.js', '.json', '.less']);
   const atomPackageData = {};
@@ -185,7 +188,7 @@ function build() {
 
   const modulesToFilter = new Set([
     // Modules with native dependencies that we do not expect to exercise at runtime.
-    'onig-reg-exp',
+    // 'onig-reg-exp',
     'runas',
     './squirrel-update',
     'tls',
@@ -321,17 +324,20 @@ function build() {
     {global: true}
   );
 
-  const ATOM_RESOURCE_PATH = '/Users/bolinfest/resourcePath';
+  // const ATOM_RESOURCE_PATH = '/Users/bolinfest/resourcePath';
+  const ATOM_RESOURCE_PATH = '/home';
+
+  const hello_world_path = path.join(ATOM_RESOURCE_PATH, "HelloWorld.java");
+  ATOM_FILES_TO_ADD[hello_world_path] = fs.readFileSync(path.join("/home", "andrew", "sandbox", "HelloWorld.java"), 'utf8');
+
   const resourceFoldersToCopy = [
-    '/keymaps',
+    // '/keymaps',
     '/menus',
-    '/node_modules/atom-dark-syntax',
-    '/node_modules/atom-dark-ui',
-    '/node_modules/atom-light-syntax',
-    '/node_modules/atom-light-ui',
-    '/node_modules/atom-ui',
-    '/resources',
-    '/static',
+    // '/node_modules/atom-ui',
+    '/node_modules/atom-material-syntax-light',
+    '/node_modules/one-light-ui',
+    // '/resources',
+    // '/static',
   ];
   for (const folder of resourceFoldersToCopy) {
     fs.traverseTreeSync(

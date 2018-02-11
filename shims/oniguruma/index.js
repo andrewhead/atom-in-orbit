@@ -1,11 +1,7 @@
-class OnigScanner {
-  findNextMatchSync(line, position) {
-    return null;
-  }
-}
-class OnigString {}
+const onigurumajs = require('oniguruma-js');
 
 module.exports = {
-  OnigScanner,
-  OnigString,
+  OnigScanner: onigurumajs.OnigScanner,
+  OnigString: onigurumajs.OnigString,
+  OnigRegExp: onigurumajs.OnigRegExp,
 };

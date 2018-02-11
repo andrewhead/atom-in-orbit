@@ -41,7 +41,7 @@ process.env.ATOM_HOME = '/This/is/.atom';
 process.resourcesPath = resourcePath;
 
 window.location.hash = '#' + JSON.stringify({
-  initialPaths: [],
+  initialPaths: ["/home/HelloWorld.java"],
   locationsToOpen: [{}],
   // windowInitializationScript: 'atom/src/initialize-application-window.coffee',
   resourcePath,
@@ -68,8 +68,8 @@ BrowserFS.initialize(inMemoryFs);
 
 // Define these environment variables for the benefit of fs-plus's
 // getHomeDirectory() function and anyone else who might need it.
-process.env.HOME = '/Users/bolinfest';
-process.env.USERPROFILE = '/Users/bolinfest';
+process.env.HOME = '/Users/andrew';
+process.env.USERPROFILE = '/Users/andrew';
 
 const fs = require('fs');
 const fsPlus = require('fs-plus');
@@ -147,17 +147,19 @@ window.loadAtom = function(callback) {
     }
 
     require('command-palette/lib/command-palette-view').activate();
-    require('find-and-replace/lib/find.js').activate();
-    require('go-to-line/lib/go-to-line-view').activate();
-    require('markdown-preview/lib/main.js').activate();
+    // require('find-and-replace/lib/find.js').activate();
+    // require('go-to-line/lib/go-to-line-view').activate();
+    // require('markdown-preview/lib/main.js').activate();
     require('notifications/lib/main.js').activate();
     require('status-bar/lib/main.js').activate();
+    require('codescoop/lib/examplify.js').activate();
+    require('script/lib/script.js').activate();
 
     // For whatever reason, Atom seems to think tabs should not be auto-activated?
     // atom.packages.loadedPackages['tabs'].mainModulePath is undefined.
     // Though even if it could, it's unclear that it would load the path that Browserify
     // has prepared, so we may be better off loading it explicitly.
-    require('tabs/lib/main.js').activate();
+    // require('tabs/lib/main.js').activate();
 
 
     // tree-view does not seem to tolerate the case where it receives an empty state
