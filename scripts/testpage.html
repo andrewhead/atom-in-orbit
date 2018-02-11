@@ -1,27 +1,113 @@
 <!DOCTYPE html>
 <html>
-<body>
+<head>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
   <script>
-  function updateStatus(message) {
-    console.error(message);
-    var status = document.createElement('div');
-    status.style.color = '#A00';
-    status.style.backgroundColor = 'white';
-    status.innerHTML = message;
-    document.body.appendChild(status);
-  }
-
-  function onAtomLoadError() {
-    updateStatus('Could not load atom.js. Check your console.');
-  }
+    function updateStatus(message) {
+      console.error(message);
+      var status = document.createElement('div');
+      status.style.color = '#A00';
+      status.style.backgroundColor = 'white';
+      status.innerHTML = message;
+      document.body.appendChild(status);
+    }
+    function onAtomLoadError() {
+      updateStatus('Could not load atom.js. Check your console.');
+    }
   </script>
-  <script src="atom-resources.js"></script>
-  <script src="atom.js" onerror="onAtomLoadError()"></script>
+</head>
+<body>
+  
+  <style>
+    #resources-label, #atom-label {
+      width: 100%;
+      text-align: center;
+      position: absolute;
+      top: 16px;
+      font-family: Helvetica, Arial, sans-serif;
+      font-weight: bold;
+    }
+    #resources-progress, #atom-progress {
+      width: 400px;
+      height: 50px;
+      position: relative;
+      margin: 5px;
+    }
+    .progress-holder {
+      width: 400px;
+      position: absolute;
+      margin-top: -60px;
+      margin-left: -200px;
+      top: 50%;
+      left: 50%;
+    }
+  </style>
+
+  <div class='progress-holder'>
+    <div id="resources-progress"><div id="resources-label"></div></div>
+    <div id="atom-progress"><div id="atom-label"></div></div>
+  </div>
   <script>
-  loadAtom(({atom, fs}) => {
-    // Adding a root will cause the tree-view to pop open once it loads.
-    atom.project.addPath(fs.getHomeDirectory());
-  });
+
+    function startAtom() {
+      loadAtom(({atom, fs}) => {
+        // Adding a root will cause the tree-view to pop open once it loads.
+        console.log("Home directory:", fs.getHomeDirectory());
+        atom.project.addPath(fs.getHomeDirectory());
+      });
+    }
+
+    $.ajaxSetup({
+      // Cache all scripts (they take a while to download)
+      cache: true,
+      error: onAtomLoadError,
+    });
+
+    function trackProgress(barSelector, labelSelector, resourceString) {
+      $(barSelector).progressbar({
+        value: false,
+        complete: function() {
+          $(labelSelector).text("Done!");
+        }
+      });
+      $(labelSelector).text("Waiting to load " + resourceString + "...");
+      return function() {
+        var xhr = new window.XMLHttpRequest();
+        xhr.addEventListener("progress", function(evt) {
+          if (evt.lengthComputable) {
+            var percentComplete = evt.loaded / evt.total;
+            $(labelSelector).text("Loading " + resourceString + "...");
+            $(barSelector).progressbar("value", percentComplete * 100);
+          }
+        }, false);
+        xhr.addEventListener("load", function(evt) {
+          $(barSelector).progressbar("value", 100);
+          $(labelSelector).text("Loaded " + resourceString);
+        });
+        return xhr;
+      }
+    }
+
+    var atomProgress = trackProgress('#atom-progress', '#atom-label', "CodeScoop")
+    var resourcesProgress = trackProgress('#resources-progress', '#resources-label', 'CodeScoop libraries');
+
+    // Resources must be loaded before Atom
+    $.ajax({
+      dataType: "script",
+      url: "atom-resources.js",
+      xhr: resourcesProgress,
+      success: function() {
+        $.ajax({
+          dataType: "script",
+          url: "atom.js",
+          xhr: atomProgress,
+          success: startAtom,
+        });
+      }
+    });
+
   </script>
 </body>
 </html>

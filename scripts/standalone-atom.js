@@ -41,7 +41,7 @@ process.env.ATOM_HOME = '/This/is/.atom';
 process.resourcesPath = resourcePath;
 
 window.location.hash = '#' + JSON.stringify({
-  initialPaths: ["/home/HelloWorld.java"],
+  initialPaths: [],
   locationsToOpen: [{}],
   // windowInitializationScript: 'atom/src/initialize-application-window.coffee',
   resourcePath,
@@ -68,8 +68,8 @@ BrowserFS.initialize(inMemoryFs);
 
 // Define these environment variables for the benefit of fs-plus's
 // getHomeDirectory() function and anyone else who might need it.
-process.env.HOME = '/Users/andrew';
-process.env.USERPROFILE = '/Users/andrew';
+process.env.HOME = '/home/andrew';
+process.env.USERPROFILE = '/home/andrew';
 
 const fs = require('fs');
 const fsPlus = require('fs-plus');
@@ -153,7 +153,7 @@ window.loadAtom = function(callback) {
     require('notifications/lib/main.js').activate();
     require('status-bar/lib/main.js').activate();
     require('codescoop/lib/examplify.js').activate();
-    require('script/lib/script.js').activate();
+    // require('script/lib/script.js').activate();
 
     // For whatever reason, Atom seems to think tabs should not be auto-activated?
     // atom.packages.loadedPackages['tabs'].mainModulePath is undefined.

@@ -331,13 +331,13 @@ function build() {
   ATOM_FILES_TO_ADD[hello_world_path] = fs.readFileSync(path.join("/home", "andrew", "sandbox", "HelloWorld.java"), 'utf8');
 
   const resourceFoldersToCopy = [
-    // '/keymaps',
+    '/keymaps',
     '/menus',
-    // '/node_modules/atom-ui',
+    '/node_modules/atom-ui',
     '/node_modules/atom-material-syntax-light',
     '/node_modules/one-light-ui',
-    // '/resources',
-    // '/static',
+    '/resources',
+    '/static',
   ];
   for (const folder of resourceFoldersToCopy) {
     fs.traverseTreeSync(
