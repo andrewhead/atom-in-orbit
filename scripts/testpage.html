@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <title>CodeScoop Demo</title>
+  <link rel="icon" href="favicon.png">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
@@ -21,33 +23,41 @@
 <body>
   
   <style>
+    h1, div.progress-label {
+      font-family: Helvetica, Arial, sans-serif;
+      text-align: center;
+    }
     #resources-label, #atom-label {
       width: 100%;
       text-align: center;
       position: absolute;
       top: 16px;
-      font-family: Helvetica, Arial, sans-serif;
       font-weight: bold;
     }
     #resources-progress, #atom-progress {
-      width: 400px;
+      width: 500px;
       height: 50px;
       position: relative;
       margin: 5px;
     }
     .progress-holder {
-      width: 400px;
+      width: 500px;
       position: absolute;
-      margin-top: -60px;
-      margin-left: -200px;
+      margin-top: -110px;
+      margin-left: -250px;
       top: 50%;
       left: 50%;
+    }
+
+    .ui-progressbar .ui-widget-header {
+      background: #e5efff;
     }
   </style>
 
   <div class='progress-holder'>
-    <div id="resources-progress"><div id="resources-label"></div></div>
-    <div id="atom-progress"><div id="atom-label"></div></div>
+    <h1>Loading the CodeScoop Demo...</h1>
+    <div id="resources-progress"><div class="progress-label" id="resources-label"></div></div>
+    <div id="atom-progress"><div class="progress-label" id="atom-label"></div></div>
   </div>
   <script>
 

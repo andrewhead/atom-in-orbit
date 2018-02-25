@@ -98,6 +98,7 @@ function build() {
     tree => {}
   );
   copyFileSyncWatch(ATOM_SRC + '/static/octicons.woff', outDir + '/octicons.woff');
+  copyFileSyncWatch(root + '/scripts/favicon.png', outDir + '/favicon.png');
 
   // All built-in Atom packages that are installed under node_modules/ in
   // ATOM_SRC because Atom's own build script has special handling for the
@@ -325,10 +326,19 @@ function build() {
   );
 
   // const ATOM_RESOURCE_PATH = '/Users/bolinfest/resourcePath';
-  const ATOM_RESOURCE_PATH = '/home';
+  const ATOM_RESOURCE_PATH = '/home/andrew';
 
-  const hello_world_path = path.join(ATOM_RESOURCE_PATH, "HelloWorld.java");
-  ATOM_FILES_TO_ADD[hello_world_path] = fs.readFileSync(path.join("/home", "andrew", "sandbox", "HelloWorld.java"), 'utf8');
+  // Save Java scenario files to file structure
+  const JAVA_DIR = path.join("/home", "andrew", "sandbox");
+  const JAVA_FILES = [
+    "HelloWorld.java",
+    "QueryDatabase.java",
+  ];
+  for (const javaFile of JAVA_FILES) {
+    const filePath = path.join(JAVA_DIR, javaFile);
+    const virtualPath = path.join(ATOM_RESOURCE_PATH, "sandbox", javaFile);
+    ATOM_FILES_TO_ADD[virtualPath] = fs.readFileSync(filePath, 'utf8');
+  }
 
   const resourceFoldersToCopy = [
     '/keymaps',
@@ -383,7 +393,7 @@ function build() {
         // Some stylesheet insists on loading octicons.woff relative to the .html page, so we
         // include both testpage.html and octicons.woff in the out/ directory.
         try {
-          fs.symlinkSync(root + '/scripts/testpage.html', outDir + '/testpage.html');
+          fs.symlinkSync(root + '/scripts/testpage.html', outDir + '/demo.html');
         } catch(e) {
           // do nothing
         }

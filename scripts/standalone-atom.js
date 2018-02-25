@@ -40,6 +40,7 @@ const menusConfigFile = menusDirPath + '/menu.json';
 process.env.ATOM_HOME = '/This/is/.atom';
 process.resourcesPath = resourcePath;
 
+/*
 window.location.hash = '#' + JSON.stringify({
   initialPaths: [],
   locationsToOpen: [{}],
@@ -57,6 +58,7 @@ window.location.hash = '#' + JSON.stringify({
   atomHome: '',
   shellLoadTime: 999,
 });
+*/
 
 process.binding = (arg) => {
   console.warn(`process.binding() called with ${arg}: not supported.`);
@@ -124,7 +126,7 @@ require('module').paths = [];
 //    creates a webapp that
 const atomPackageInitialState = {
   'tree-view': {
-    attached: true,
+    attached: false,
   },
 };
 
@@ -152,8 +154,13 @@ window.loadAtom = function(callback) {
     // require('markdown-preview/lib/main.js').activate();
     require('notifications/lib/main.js').activate();
     require('status-bar/lib/main.js').activate();
-    require('codescoop/lib/examplify.js').activate();
     // require('script/lib/script.js').activate();
+
+    // Open up the test file.  Wait to initialize CodeScoop until the test file
+    // has been opened, as it needs to initialize on that file.
+    atom.workspace.open("/home/andrew/sandbox/QueryDatabase.java").then(() => {
+      require('codescoop/lib/examplify.js').activate();
+    });
 
     // For whatever reason, Atom seems to think tabs should not be auto-activated?
     // atom.packages.loadedPackages['tabs'].mainModulePath is undefined.
@@ -164,7 +171,7 @@ window.loadAtom = function(callback) {
 
     // tree-view does not seem to tolerate the case where it receives an empty state
     // from the previous session, so we make sure to pass one explicitly.
-    const treeViewState = {attached: true};
+    const treeViewState = {attached: false};
     require('tree-view/lib/main.js').activate(treeViewState);
 
     const paramsForCaller = {
