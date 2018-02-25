@@ -111,7 +111,6 @@ function build() {
     // installing them under node_modules helps ensure their dependencies get
     // deduped properly by npm.
     'one-light-ui',
-    'atom-material-syntax-light',
     'command-palette',
     'notifications',
     'status-bar',
@@ -344,7 +343,6 @@ function build() {
     '/keymaps',
     '/menus',
     '/node_modules/atom-ui',
-    '/node_modules/atom-material-syntax-light',
     '/node_modules/one-light-ui',
     '/resources',
     '/static',
