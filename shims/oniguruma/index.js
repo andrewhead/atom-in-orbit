@@ -1,3 +1,4 @@
+/** @babel */
 const onigurumajs = require('oniguruma-js');
 
 module.exports = {

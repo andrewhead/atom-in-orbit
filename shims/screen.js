@@ -1,3 +1,4 @@
+/** @babel */
 exports.getPrimaryDisplay = function() {
   return {
     workAreaSize: {

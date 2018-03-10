@@ -1,3 +1,4 @@
+/** @babel */
 module.exports = class Node {
   constructor (parent, leftExtent) {
     this.parent = parent

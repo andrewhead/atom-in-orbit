@@ -1,3 +1,4 @@
+/** @babel */
 const Random = require('random-seed');
 
 const Iterator = require('./iterator');

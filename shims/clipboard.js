@@ -1,3 +1,4 @@
+/** @babel */
 function Clipboard() {
   this.metadata = null;
   this.signatureForMetadata = null;

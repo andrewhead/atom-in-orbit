@@ -1,3 +1,4 @@
+/** @babel */
 var lastWindow;
 exports.getCurrentWindow = function() {
   if (lastWindow) {

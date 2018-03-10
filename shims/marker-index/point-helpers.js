@@ -1,3 +1,4 @@
+/** @babel */
 module.exports.traverse = function traverse (start, traversal) {
   if (traversal.row === 0) {
     return {

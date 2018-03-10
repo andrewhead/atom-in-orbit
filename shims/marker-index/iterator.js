@@ -1,3 +1,4 @@
+/** @babel */
 const Node = require('./node');
 const {addToSet} = require('./helpers');
 const {compare, isZero, traversal, traverse} = require('./point-helpers');

@@ -1,13 +1,15 @@
+'use strict';
+
 // By default, browserify sets process.platform to 'browser'. Atom needs a
 // real value for process.platform because it does a lot of resource loading
 // based on this variable (including keyboard shortcut registration!).
 function detectPlatform() {
-  let platform = 'browser';
-  let userAgentPlatform;
+  var platform = 'browser';
+  var userAgentPlatform = void 0;
   try {
     userAgentPlatform = window.navigator.platform;
   } catch (e) {
-    console.error(`Could not find the platform: assuming '${platform}'.`);
+    console.error('Could not find the platform: assuming \'' + platform + '\'.');
     return platform;
   }
 
@@ -23,18 +25,18 @@ function detectPlatform() {
 }
 process.platform = detectPlatform();
 
-window.setImmediate = function(callback) {
+window.setImmediate = function (callback) {
   Promise.resolve().then(callback);
 };
 
-const pathModule = require('path');
+var pathModule = require('path');
 
-const resourcePath = ATOM_RESOURCE_PATH;
+var resourcePath = ATOM_RESOURCE_PATH;
 
 // This exists in a GitHub checkout of Atom, but I cannot seem to
 // find it under /Applications/Atom.app/.
-const menusDirPath = resourcePath + '/menus';
-const menusConfigFile = menusDirPath + '/menu.json';
+var menusDirPath = resourcePath + '/menus';
+var menusConfigFile = menusDirPath + '/menu.json';
 
 // process.env.ATOM_DEV_RESOURCE_PATH = '/This/is/fake';
 process.env.ATOM_HOME = '/This/is/.atom';
@@ -60,12 +62,12 @@ window.location.hash = '#' + JSON.stringify({
 });
 */
 
-process.binding = (arg) => {
-  console.warn(`process.binding() called with ${arg}: not supported.`);
+process.binding = function (arg) {
+  console.warn('process.binding() called with ' + arg + ': not supported.');
   return {};
 };
 
-const inMemoryFs = new BrowserFS.FileSystem.InMemory();
+var inMemoryFs = new BrowserFS.FileSystem.InMemory();
 BrowserFS.initialize(inMemoryFs);
 
 // Define these environment variables for the benefit of fs-plus's
@@ -73,8 +75,8 @@ BrowserFS.initialize(inMemoryFs);
 process.env.HOME = '/home/andrew';
 process.env.USERPROFILE = '/home/andrew';
 
-const fs = require('fs');
-const fsPlus = require('fs-plus');
+var fs = require('fs');
+var fsPlus = require('fs-plus');
 function addFile(file, contents) {
   fsPlus.makeTreeSync(pathModule.dirname(file));
   fs.writeFileSync(file, contents);
@@ -85,7 +87,7 @@ function addFile(file, contents) {
 // with the fs module. We need to do some work to ensure only one instance of is
 // is used in the system. lstatSyncNoException is an API introduced by fs-plus, but
 // somehow it was missing when calling atom.project.addPath() when tree-view is loaded.
-fs.lstatSyncNoException = fsPlus.lstatSyncNoException = function(filePath) {
+fs.lstatSyncNoException = fsPlus.lstatSyncNoException = function (filePath) {
   try {
     return fs.lstatSync(filePath);
   } catch (e) {
@@ -93,26 +95,30 @@ fs.lstatSyncNoException = fsPlus.lstatSyncNoException = function(filePath) {
   }
 };
 
-for (const fileName in ATOM_FILES_TO_ADD) {
+for (var fileName in ATOM_FILES_TO_ADD) {
   addFile(fileName, ATOM_FILES_TO_ADD[fileName]);
 }
 
-const atomPackages = [];
+var atomPackages = [];
 
-for (const pkgName in ATOM_PACKAGE_DATA) {
-  const packageData = ATOM_PACKAGE_DATA[pkgName];
+for (var pkgName in ATOM_PACKAGE_DATA) {
+  var packageData = ATOM_PACKAGE_DATA[pkgName];
   atomPackages.push({
     name: pkgName,
-    main: packageData.metadata.main,
+    main: packageData.metadata.main
   });
-  const entryMap = packageData['files'];
-  for (const fileName in entryMap) {
-    const contents = entryMap[fileName];
-    addFile(fileName, contents);
+  var entryMap = packageData['files'];
+  for (var _fileName in entryMap) {
+    var contents = entryMap[_fileName];
+    addFile(_fileName, contents);
   }
 }
 
-fsPlus.resolveOnLoadPath = function(...args) {
+fsPlus.resolveOnLoadPath = function () {
+  for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+    args[_key] = arguments[_key];
+  }
+
   return fsPlus.resolve.apply(fsPlus, require('module').globalPaths.concat(args));
 };
 
@@ -124,41 +130,65 @@ require('module').paths = [];
 // 1. tree-view should be fixed so it can tolerate an empty state.
 // 2. This should be able to be specified from the caller if someone
 //    creates a webapp that
-const atomPackageInitialState = {
+var atomPackageInitialState = {
   'tree-view': {
-    attached: false,
-  },
+    attached: false
+  }
 };
 
-window.loadAtom = function(callback) {
-  const initializeApplicationWindow = require('./initialize-application-window');
+window.loadAtom = function (callback) {
+  var initializeApplicationWindow = require('./initialize-application-window');
 
   // Various things try to write to the BlobStore.
-  const FileSystemBlobStore = require('./file-system-blob-store.js');
-  const blobStore = new FileSystemBlobStore('/tmp');
+  var FileSystemBlobStore = require('./file-system-blob-store.js');
+  var blobStore = new FileSystemBlobStore('/tmp');
 
-  initializeApplicationWindow({blobStore}).then(() => {
+  initializeApplicationWindow({ blobStore: blobStore }).then(function () {
     require('electron').ipcRenderer.send('window-command', 'window:loaded');
 
-    for (const atomPackage of atomPackages) {
-      const {name, main} = atomPackage;
-      atom.packages.activatePackage(ATOM_PACKAGE_ROOT_FROM_BROWSERIFY + '/' + name);
-      const initialState = atomPackageInitialState[name];
-      // TODO(mbolin): Use main to eliminate the repeated calls to require() with
-      // one line of code in this loop. May be a problem for browserify's static pass.
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+      for (var _iterator = atomPackages[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var atomPackage = _step.value;
+        var name = atomPackage.name,
+            main = atomPackage.main;
+
+        if (name !== 'atom-patch') {
+          atom.packages.activatePackage(ATOM_PACKAGE_ROOT_FROM_BROWSERIFY + '/' + name);
+          var initialState = atomPackageInitialState[name];
+          // TODO(mbolin): Use main to eliminate the repeated calls to require() with
+          // one line of code in this loop. May be a problem for browserify's static pass.
+        }
+      }
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion && _iterator.return) {
+          _iterator.return();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
+      }
     }
 
-    require('command-palette/lib/command-palette-view').activate();
+    // require('command-palette/lib/command-palette-view').activate();
     // require('find-and-replace/lib/find.js').activate();
     // require('go-to-line/lib/go-to-line-view').activate();
     // require('markdown-preview/lib/main.js').activate();
     require('notifications/lib/main.js').activate();
-    require('status-bar/lib/main.js').activate();
+    // require('status-bar/lib/main.js').activate();
     // require('script/lib/script.js').activate();
 
     // Open up the test file.  Wait to initialize CodeScoop until the test file
     // has been opened, as it needs to initialize on that file.
-    atom.workspace.open("/home/andrew/sandbox/QueryDatabase.java").then(() => {
+    atom.workspace.open("/home/andrew/sandbox/QueryDatabase.java").then(function () {
       require('codescoop/lib/examplify.js').activate();
     });
 
@@ -171,13 +201,13 @@ window.loadAtom = function(callback) {
 
     // tree-view does not seem to tolerate the case where it receives an empty state
     // from the previous session, so we make sure to pass one explicitly.
-    const treeViewState = {attached: false};
-    require('tree-view/lib/main.js').activate(treeViewState);
+    // var treeViewState = { attached: false };
+    // require('tree-view/lib/main.js').activate(treeViewState);
 
-    const paramsForCaller = {
-      atom,
-      fs: fsPlus,
+    var paramsForCaller = {
+      atom: atom,
+      fs: fsPlus
     };
     callback(paramsForCaller);
   });
-}
+};

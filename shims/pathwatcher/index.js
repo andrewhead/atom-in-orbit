@@ -1,3 +1,4 @@
+/** @babel */
 exports.Directory = require('./directory');
 exports.File = require('./file');
 

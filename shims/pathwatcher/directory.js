@@ -1,3 +1,4 @@
+/** @babel */
 const path = require('path');
 
 const async = require('async');

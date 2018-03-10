@@ -95,10 +95,14 @@ function build() {
   copySyncWatch(
     ATOM_SRC + '/node_modules',
     atomDir + '/node_modules',
+    // Edit here if we want to transpile more files.
     tree => {}
   );
   copyFileSyncWatch(ATOM_SRC + '/static/octicons.woff', outDir + '/octicons.woff');
   copyFileSyncWatch(root + '/scripts/favicon.png', outDir + '/favicon.png');
+  // copyFileSyncWatch(root + '/scripts/browser-polyfill.js', outDir + '/browser-polyfill.js');
+  copyFileSyncWatch(root + '/scripts/webcomponents-lite.js', outDir + '/webcomponents-lite.js');
+  copyFileSyncWatch(root + '/scripts/webcomponents-lite.js.map', outDir + '/webcomponents-lite.js.map');
 
   // All built-in Atom packages that are installed under node_modules/ in
   // ATOM_SRC because Atom's own build script has special handling for the
@@ -111,13 +115,17 @@ function build() {
     // installing them under node_modules helps ensure their dependencies get
     // deduped properly by npm.
     'one-light-ui',
-    'command-palette',
+    // 'command-palette',
     'notifications',
-    'status-bar',
-    'tree-view',
+    // 'status-bar',
+    // 'tree-view',
     'codescoop',
     // 'script',
     'language-java',
+    // List these as packages so that the Babel processor gets run on them
+    'atom-keymap',
+    'atom-patch',
+    'text-buffer',
   ];
   const filesTypesToCopyFromPackage = new Set(['.cson', '.js', '.json', '.less']);
   const atomPackageData = {};
@@ -344,7 +352,7 @@ function build() {
     '/menus',
     '/node_modules/atom-ui',
     '/node_modules/one-light-ui',
-    '/resources',
+    // '/resources', // can nix
     '/static',
   ];
   for (const folder of resourceFoldersToCopy) {
@@ -439,6 +447,7 @@ function build() {
 }
 
 function transpileFile(absolutePath) {
+
   const ext = path.extname(absolutePath);
   if (!COMPILERS.hasOwnProperty(ext)) {
     return;
@@ -471,7 +480,11 @@ function createShimPackageFromSingleFile(nodeModules, moduleName) {
 function createShimPackageFromDirectory(nodeModules, moduleName) {
   const moduleDirectory = `${nodeModules}/${moduleName}`;
   makeCleanDir(moduleDirectory);
-  copySyncWatch(`${root}/shims/${moduleName}`, moduleDirectory, tree => {});
+  copySyncWatch(
+    `${root}/shims/${moduleName}`, 
+    moduleDirectory,
+    tree => fs.traverseTreeSync(tree, transpileFile, () => true)
+  );
 }
 
 function copySyncWatch(from, to, then) {

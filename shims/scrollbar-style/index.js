@@ -1,18 +1,19 @@
-const {Emitter} = require('event-kit');
+/** @babel */
+const Emitter = require('event-kit').Emitter;
 
 const emitter = new Emitter();
 
 module.exports = {
-  getPreferredScrollbarStyle() {
+  getPreferredScrollbarStyle: function() {
     // 'overlay' seems more appropriate than 'legacy'.
     return 'overlay';
   },
 
-  onDidChangePreferredScrollbarStyle(callback) {
+  onDidChangePreferredScrollbarStyle: function(callback) {
     return emitter.on('did-change-preferred-scrollbar-style', callback);
   },
 
-  observePreferredScrollbarStyle(callback) {
+  observePreferredScrollbarStyle: function(callback) {
     callback(this.getPreferredScrollbarStyle());
     return this.onDidChangePreferredScrollbarStyle(callback);
   },

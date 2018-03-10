@@ -1,11 +1,12 @@
+/** @babel */
 module.exports = {
-  observeCurrentKeyboardLayout() {
+  observeCurrentKeyboardLayout: function() {
 
   },
-  getCurrentKeyboardLayout() {
+  getCurrentKeyboardLayout: function() {
     return 'com.apple.keylayout.US';
   },
-  getCurrentKeymap() {
+  getCurrentKeymap: function() {
     return null;
   },
 };

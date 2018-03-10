@@ -1,41 +1,25 @@
-'use strict';
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
 /** @babel */
-var listeners = {};
-var handlers = {};
+const listeners = {};
+const handlers = {};
 
-function registerGetterSetter(action) {
-  for (var _len = arguments.length, initialValue = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-    initialValue[_key - 1] = arguments[_key];
-  }
-
+function registerGetterSetter(action, ...initialValue) {
   var value = initialValue;
-  handlers['set-' + action] = function () {
-    for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-      args[_key2] = arguments[_key2];
-    }
-
+  handlers['set-' + action] = function(...args) {
     value = args;
-    dispatch.apply(undefined, ['ipc-helpers-set-' + action + '-response'].concat(_toConsumableArray(value)));
-  };
-  handlers['get-' + action] = function () {
-    for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-      args[_key3] = arguments[_key3];
-    }
-
+    dispatch('ipc-helpers-set-' + action + '-response', ...value);
+  }
+  handlers['get-' + action] = function(...args) {
     value = args;
-    dispatch.apply(undefined, ['ipc-helpers-get-' + action + '-response'].concat(_toConsumableArray(value)));
-  };
+    dispatch('ipc-helpers-get-' + action + '-response', ...value);
+  }
 }
 function registerMethod(action, value) {
-  handlers[action] = function () {
+  handlers[action] = function(...args) {
     dispatch('ipc-helpers-' + action + '-response', value);
-  };
+  }
 }
 
-var temporaryWindowState = JSON.stringify({
+let temporaryWindowState = JSON.stringify({
   version: 1,
   project: {
     deserializer: "Project",
@@ -50,11 +34,15 @@ var temporaryWindowState = JSON.stringify({
       root: {
         deserializer: "Pane",
         id: 3,
-        items: []
-      }
+        items: [],
+      },
     },
-    packagesWithActiveGrammars: [],
-    destroyedItemURIs: []
+    packagesWithActiveGrammars: [
+
+    ],
+    destroyedItemURIs: [
+
+    ],
   },
   fullScreen: false,
   windowDimensions: {
@@ -62,11 +50,11 @@ var temporaryWindowState = JSON.stringify({
     y: 45,
     width: 918,
     height: 760,
-    maximized: false
+    maximized: false,
   },
   textEditors: {
-    editorGrammarOverrides: {}
-  }
+    editorGrammarOverrides: {},
+  },
 });
 
 // TODO(mbolin): Figure out how to use the above instead of this opaque string.
@@ -79,37 +67,38 @@ registerMethod('window-method');
 registerMethod('show-window');
 registerMethod('focus-window');
 
-function dispatch(action) {
-  for (var _len4 = arguments.length, args = Array(_len4 > 1 ? _len4 - 1 : 0), _key4 = 1; _key4 < _len4; _key4++) {
-    args[_key4 - 1] = arguments[_key4];
-  }
-
-  (listeners[action] || []).forEach(function (listener) {
-    listener.apply(undefined, [action].concat(args));
-  });
+function dispatch(action, ...args) {
+  (listeners[action] || []).forEach(function(listener) {
+    listener(action, ...args);
+  })
 }
 
 module.exports = {
   app: {
-    getPath: function getPath(arg) {
+    getPath(arg) {
       if (arg === 'home') {
         return require('fs-plus').getHomeDirectory();
       } else {
-        console.error('app.getPath() called with ' + arg + ': not supported.');
+        console.error(`app.getPath() called with ${arg}: not supported.`);
       }
     },
-    getVersion: function getVersion() {
+
+    getVersion() {
       // TODO: Read this from Atom's package.json.
       return '0.37.8';
     },
-    on: function on(eventName, callback) {
-      console.error('Dropping ' + eventName + ' on the floor in Electron.');
+
+    on(eventName, callback) {
+      console.error(`Dropping ${eventName} on the floor in Electron.`);
     },
-    setAppUserModelId: function setAppUserModelId(modelId) {}
+
+    setAppUserModelId(modelId) {
+
+    },
   },
 
   ipcRenderer: {
-    on: function on(action, cb) {
+    on(action, cb) {
       if (!listeners[action]) {
         listeners[action] = [];
       }
@@ -118,89 +107,68 @@ module.exports = {
         dispatch('ipc-helpers-get-temporary-window-state-response', temporaryWindowState);
       }
     },
-    send: function send(action) {
+
+    send(action, ...args) {
       var handler = handlers[action];
-
-      for (var _len5 = arguments.length, args = Array(_len5 > 1 ? _len5 - 1 : 0), _key5 = 1; _key5 < _len5; _key5++) {
-        args[_key5 - 1] = arguments[_key5];
-      }
-
       if (!handler) {
-        var _console;
-
-        (_console = console).warn.apply(_console, ['Ignored IPC call', action].concat(args));
+        console.warn('Ignored IPC call', action, ...args);
         return;
       }
-      handler.apply(undefined, args);
+      handler(...args)
     },
-    sendSync: function sendSync(action) {
+
+    sendSync(action, ...args) {
       var handler = handlers[action];
-
-      for (var _len6 = arguments.length, args = Array(_len6 > 1 ? _len6 - 1 : 0), _key6 = 1; _key6 < _len6; _key6++) {
-        args[_key6 - 1] = arguments[_key6];
-      }
-
       if (!handler) {
-        var _console2;
-
-        (_console2 = console).warn.apply(_console2, ['Ignored synchronous IPC call', action].concat(args));
+        console.warn('Ignored synchronous IPC call', action, ...args);
         return;
       }
-      handler.apply(undefined, args);
+      handler(...args)
     },
-    removeAllListeners: function removeAllListeners(action) {
+
+    removeAllListeners(action) {
       delete listeners[action];
     },
-    removeListener: function removeListener(action, callback) {
-      var listenersForAction = listeners[action] || [];
-      var index = listenersForAction.indexOf(callback);
+
+    removeListener(action, callback) {
+      const listenersForAction = listeners[action] || [];
+      const index = listenersForAction.indexOf(callback);
       if (index !== -1) {
         listenersForAction.splice(index, 1);
       }
-    }
+    },
   },
 
   remote: {
-    getCurrentWindow: function getCurrentWindow() {
+    getCurrentWindow() {
       return {
-        on: function on() {},
-        isFullScreen: function isFullScreen() {
-          return false;
+        on() {},
+        isFullScreen() { return false; },
+        getPosition() { return [0, 0]; },
+        getSize() { return [800, 600]; },
+        isMaximized() { return false; },
+        isWebViewFocused() { return true; },
+        removeListener(action, callback) {
+          console.warn(`Failing to remove listener for ${action} in remote.getCurrentWindow().`);
         },
-        getPosition: function getPosition() {
-          return [0, 0];
-        },
-        getSize: function getSize() {
-          return [800, 600];
-        },
-        isMaximized: function isMaximized() {
-          return false;
-        },
-        isWebViewFocused: function isWebViewFocused() {
-          return true;
-        },
-        removeListener: function removeListener(action, callback) {
-          console.warn('Failing to remove listener for ' + action + ' in remote.getCurrentWindow().');
-        }
-      };
+      }
     },
 
-
     screen: {
-      getPrimaryDisplay: function getPrimaryDisplay() {
+      getPrimaryDisplay() {
         return {
-          workAreaSize: {}
+          workAreaSize: {},
         };
-      }
-    }
+      },
+    },
   },
 
   webFrame: {
-    setZoomLevelLimits: function setZoomLevelLimits() {}
+    setZoomLevelLimits: function() {},
   },
 
   screen: {
-    on: function on() {},
-    removeListener: function removeListener(action, callback) {}
-  }
+    on() {},
+    removeListener(action, callback) {},
+  },
 };
