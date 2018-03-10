@@ -128,7 +128,7 @@ module.exports = {
       if (!handler) {
         var _console;
 
-        (_console = console).warn.apply(_console, ['Ignored IPC call', action].concat(args));
+        // (_console = console).warn.apply(_console, ['Ignored IPC call', action].concat(args));
         return;
       }
       handler.apply(undefined, args);

@@ -63,7 +63,7 @@ window.location.hash = '#' + JSON.stringify({
 */
 
 process.binding = function (arg) {
-  console.warn('process.binding() called with ' + arg + ': not supported.');
+  // console.warn('process.binding() called with ' + arg + ': not supported.');
   return {};
 };
 
