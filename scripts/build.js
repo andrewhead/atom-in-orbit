@@ -338,7 +338,6 @@ function build() {
   // Save Java scenario files to file structure
   const JAVA_DIR = path.join("/home", "andrew", "sandbox");
   const JAVA_FILES = [
-    "HelloWorld.java",
     "QueryDatabase.java",
   ];
   for (const javaFile of JAVA_FILES) {

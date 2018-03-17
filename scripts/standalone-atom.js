@@ -188,7 +188,8 @@ window.loadAtom = function (callback) {
 
     // Open up the test file.  Wait to initialize CodeScoop until the test file
     // has been opened, as it needs to initialize on that file.
-    atom.workspace.open("/home/andrew/sandbox/QueryDatabase.java").then(function () {
+    atom.workspace.project.addPath("/home/andrew/")
+    atom.workspace.open("sandbox/QueryDatabase.java").then(function () {
       require('codescoop/lib/examplify.js').activate();
     });
 
