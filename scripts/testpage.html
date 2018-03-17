@@ -11,6 +11,22 @@
   <title>CodeScoop Demo</title>
   <link rel="icon" href="favicon.png">
 
+  <!--Detect browser before any other polyfills are added-->
+  <script>
+    var isChrome = !!window.chrome && !!window.chrome.webstore;
+    var isFirefox = typeof InstallTrigger !== 'undefined';
+    var isSafari = (
+      /constructor/i.test(window.HTMLElement) ||
+      (function (p) {
+         return p.toString() === "[object SafariRemoteNotification]"; 
+      }) (!window['safari'] || (typeof safari !== 'undefined' && safari.pushNotification))
+    );
+    console.log("Browser Detection...");
+    console.log("Is Chrome?", isChrome);
+    console.log("Is Firefox?", isFirefox);
+    console.log("Is Safari?", isSafari);
+  </script>
+
   <!--Babel polyfills (general language support)-->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.26.0/polyfill.js"></script>
 
@@ -220,9 +236,12 @@
   
   <style>
 
-    h1, div.progress-label {
+    h1, h2, div.progress-label {
       font-family: Helvetica, Arial, sans-serif;
       text-align: center;
+    }
+    div#apologies h1, div#apologies h2 {
+      text-align: left;
     }
     #resources-label, #atom-label {
       width: 100%;
@@ -250,6 +269,15 @@
       background: #e5efff;
     }
 
+    #apologies {
+      width: 600px;
+      position: absolute;
+      margin-top: -80px;
+      margin-left: -300px;
+      top: 50%;
+      left: 50%;
+    }
+
   </style>
 
   <div class='progress-holder'>
@@ -265,74 +293,100 @@
     </div></div>
 
   </div>
+
+  <div id='apologies' style="display:none;">
+    <h1>Sorry, the CodeScoop demo is not supported for your browser.</h1>
+    <h2>Please download a recent version of Chrome, Firefox, or Safari and try again.</h2>
+  </div>
+
   <script>
 
-    function startAtom() {
-      loadAtom(function(obj) {
-        atom = obj.atom;
-        fs = obj.fs;
-        // Adding a root will cause the tree-view to pop open once it loads.
-        atom.project.addPath(fs.getHomeDirectory());
-      });
+    // Browser detection snippet from:
+    // https://stackoverflow.com/questions/9847580/how-to-detect-safari-chrome-ie-firefox-and-opera-browser
+    // Note that this solution is brittle, and may not work for detecting future versions of Chrome and
+    // Firefox, and might even mis-diagnose other browsers eventually!
+    var isSupported = (isChrome || isFirefox || isSafari);
+    // if (!(isChrome || isFirefox || isSafari)) {
+    if (!isSupported) {
+      $('.progress-holder').css('display', 'none');
+      $('#apologies').css('display', 'block');
     }
 
-    $.ajaxSetup({
-      // Cache all scripts (they take a while to download)
-      cache: true,
-      error: onAtomLoadError
-    });
+    if (isSupported) {
 
-    function trackProgress(barSelector, labelSelector, resourceString) {
-      $(barSelector).progressbar({
-        value: false,
-        complete: function() {
-          $(labelSelector).text("Done!");
+      function startAtom() {
+        loadAtom(function(obj) {
+          atom = obj.atom;
+          fs = obj.fs;
+          // Adding a root will cause the tree-view to pop open once it loads.
+          atom.project.addPath(fs.getHomeDirectory());
+        });
+      }
+
+      $.ajaxSetup({
+        // Cache all scripts (they take a while to download)
+        cache: true,
+        error: onAtomLoadError
+      });
+
+      function trackProgress(barSelector, labelSelector, resourceString) {
+        $(barSelector).progressbar({
+          value: false,
+          complete: function() {
+            $(labelSelector).text("Done!");
+          }
+        });
+        $(labelSelector).text("Waiting to load " + resourceString + "...");
+        return function() {
+          var xhr = new window.XMLHttpRequest();
+          xhr.addEventListener("progress", function(evt) {
+            if (evt.lengthComputable) {
+              var percentComplete = evt.loaded / evt.total;
+              $(labelSelector).text("Loading " + resourceString + "...");
+              $(barSelector).progressbar("value", percentComplete * 100);
+            }
+          }, false);
+          xhr.addEventListener("load", function(evt) {
+            $(barSelector).progressbar("value", 100);
+            $(labelSelector).text("Loaded " + resourceString);
+          });
+          return xhr;
+        }
+      }
+
+      var atomProgress = trackProgress(
+        '#atom-progress',
+        '#atom-label',
+        "CodeScoop");
+      var resourcesProgress = trackProgress(
+        '#resources-progress',
+        '#resources-label',
+        'CodeScoop libraries');
+
+      // Resources must be loaded before Atom
+      $.ajax({
+        dataType: "script",
+        url: "atom-resources.js",
+        xhr: resourcesProgress,
+        success: function() {
+          $.ajax({
+            dataType: "script",
+            url: "atom.js",
+            xhr: atomProgress,
+            success: function() {
+              startAtom();
+            }
+          });
         }
       });
-      $(labelSelector).text("Waiting to load " + resourceString + "...");
-      return function() {
-        var xhr = new window.XMLHttpRequest();
-        xhr.addEventListener("progress", function(evt) {
-          if (evt.lengthComputable) {
-            var percentComplete = evt.loaded / evt.total;
-            $(labelSelector).text("Loading " + resourceString + "...");
-            $(barSelector).progressbar("value", percentComplete * 100);
-          }
-        }, false);
-        xhr.addEventListener("load", function(evt) {
-          $(barSelector).progressbar("value", 100);
-          $(labelSelector).text("Loaded " + resourceString);
-        });
-        return xhr;
-      }
     }
 
-    var atomProgress = trackProgress(
-      '#atom-progress',
-      '#atom-label',
-      "CodeScoop");
-    var resourcesProgress = trackProgress(
-      '#resources-progress',
-      '#resources-label',
-      'CodeScoop libraries');
+  </script>
 
-    // Resources must be loaded before Atom
-    $.ajax({
-      dataType: "script",
-      url: "atom-resources.js",
-      xhr: resourcesProgress,
-      success: function() {
-        $.ajax({
-          dataType: "script",
-          url: "atom.js",
-          xhr: atomProgress,
-          success: function() {
-            startAtom();
-          }
-        });
-      }
-    });
+  <script>
 
   </script>
+
+
 </body>
 </html>
