@@ -236,12 +236,15 @@
   
   <style>
 
-    h1, h2, div.progress-label {
+    h1, h2, div.progress-label, p {
       font-family: Helvetica, Arial, sans-serif;
       text-align: center;
     }
     div#apologies h1, div#apologies h2 {
       text-align: left;
+    }
+    h2 {
+      font-weight: normal;
     }
     #resources-label, #atom-label {
       width: 100%;
@@ -259,7 +262,7 @@
     .progress-holder {
       width: 500px;
       position: absolute;
-      margin-top: -110px;
+      margin-top: -130px;
       margin-left: -250px;
       top: 50%;
       left: 50%;
@@ -282,7 +285,7 @@
 
   <div class='progress-holder'>
     
-    <h1>Loading the CodeScoop Demo...</h1>
+    <h1 id="title">Loading the CodeScoop Demo...</h1>
     
     <div id="resources-progress">
       <div class="progress-label" id="resources-label"></div>
@@ -291,6 +294,11 @@
     <div id="atom-progress">
       <div class="progress-label" id="atom-label">
     </div></div>
+
+    <div id="initializing" style="display: none;">
+      <h2>Almost there!  Now launching the tool...<img style="height: 1.2em; width: 1.2em;" src="loader.gif"></h2>
+      <p>This can take a few seconds, or a minute.  Hang tight!</a></p>
+    </div>
 
   </div>
 
@@ -326,7 +334,14 @@
       $.ajaxSetup({
         // Cache all scripts (they take a while to download)
         cache: true,
-        error: onAtomLoadError
+        error: onAtomLoadError,
+        converters: {
+          // Don't evaluate fetched JavaScript immediately.  Let the page logic
+          // update the UI first.
+          "text script": function(text) {
+            return text;
+          }
+        }
       });
 
       function trackProgress(barSelector, labelSelector, resourceString) {
@@ -368,13 +383,25 @@
         dataType: "script",
         url: "atom-resources.js",
         xhr: resourcesProgress,
-        success: function() {
+        success: function(resourcesText) {
           $.ajax({
             dataType: "script",
             url: "atom.js",
             xhr: atomProgress,
-            success: function() {
-              startAtom();
+            success: function(atomText) {
+              $("#atom-progress").progressbar("value", 100);
+              $("#atom-label").text("Loaded CodeScoop");
+              $("#initializing").css("display", "block");
+              $("#title").text("Initializing the CodeScoop tool...");
+              // Start the evaluation of the scripts shortly after the load
+              // is finished.  There should be a short time buffer before
+              // loading the scripts, so the style changes for progress
+              // get processed before blocking on script loading.
+              setTimeout(function() {
+                $.globalEval(resourcesText);
+                $.globalEval(atomText);
+                startAtom();
+              }, 500);
             }
           });
         }

@@ -100,6 +100,7 @@ function build() {
   );
   copyFileSyncWatch(ATOM_SRC + '/static/octicons.woff', outDir + '/octicons.woff');
   copyFileSyncWatch(root + '/scripts/favicon.png', outDir + '/favicon.png');
+  copyFileSyncWatch(root + '/scripts/loader.gif', outDir + '/loader.gif');
   // copyFileSyncWatch(root + '/scripts/browser-polyfill.js', outDir + '/browser-polyfill.js');
   copyFileSyncWatch(root + '/scripts/webcomponents-lite.js', outDir + '/webcomponents-lite.js');
   copyFileSyncWatch(root + '/scripts/webcomponents-lite.js.map', outDir + '/webcomponents-lite.js.map');
