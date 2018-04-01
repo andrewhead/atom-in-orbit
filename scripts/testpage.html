@@ -236,14 +236,14 @@
   
   <style>
 
-    h1, h2, div.progress-label, p {
+    div.loading_page h1, div.loading_page h2, div.loading_page div.progress-label, div.loading_page p {
       font-family: Helvetica, Arial, sans-serif;
       text-align: center;
     }
     div#apologies h1, div#apologies h2 {
       text-align: left;
     }
-    h2 {
+    div.loading_page h2 {
       font-weight: normal;
     }
     #resources-label, #atom-label {
@@ -283,28 +283,32 @@
 
   </style>
 
-  <div class='progress-holder'>
-    
-    <h1 id="title">Loading the CodeScoop Demo...</h1>
-    
-    <div id="resources-progress">
-      <div class="progress-label" id="resources-label"></div>
+  <div class='loading_page'>
+
+    <div class='progress-holder'>
+      
+      <h1 id="title">Loading the CodeScoop Demo...</h1>
+      
+      <div id="resources-progress">
+        <div class="progress-label" id="resources-label"></div>
+      </div>
+      
+      <div id="atom-progress">
+        <div class="progress-label" id="atom-label">
+      </div></div>
+
+      <div id="initializing" style="display: none;">
+        <h2>Almost there!  Now launching the tool...<img style="height: 1.2em; width: 1.2em;" src="loader.gif"></h2>
+        <p class="please_wait">This can take a few seconds, or a minute.  Hang tight!</a></p>
+      </div>
+
     </div>
-    
-    <div id="atom-progress">
-      <div class="progress-label" id="atom-label">
-    </div></div>
 
-    <div id="initializing" style="display: none;">
-      <h2>Almost there!  Now launching the tool...<img style="height: 1.2em; width: 1.2em;" src="loader.gif"></h2>
-      <p>This can take a few seconds, or a minute.  Hang tight!</a></p>
+    <div id='apologies' style="display:none;">
+      <h1>Sorry, the CodeScoop demo is not supported for your browser.</h1>
+      <h2>Please download a recent version of Chrome, Firefox, or Safari and try again.</h2>
     </div>
 
-  </div>
-
-  <div id='apologies' style="display:none;">
-    <h1>Sorry, the CodeScoop demo is not supported for your browser.</h1>
-    <h2>Please download a recent version of Chrome, Firefox, or Safari and try again.</h2>
   </div>
 
   <script>
@@ -392,7 +396,7 @@
               $("#atom-progress").progressbar("value", 100);
               $("#atom-label").text("Loaded CodeScoop");
               $("#initializing").css("display", "block");
-              $("#title").text("Initializing the CodeScoop tool...");
+              $("#title").text("Launching the CodeScoop tool...");
               // Start the evaluation of the scripts shortly after the load
               // is finished.  There should be a short time buffer before
               // loading the scripts, so the style changes for progress
